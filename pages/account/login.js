@@ -4,8 +4,11 @@ import Image from 'next/image';
 import { makeStyles } from '@mui/styles';
 import { TextField, Button, InputAdornment, IconButton, Typography, Box, Link as MaterialLink } from '@mui/material';
 import { VisibilityOff, Visibility, Google } from '@mui/icons-material';
+import { setCookie } from 'nookies';
 import styles from '../../styles/Home.module.css';
 import { BottomNav } from '../../src/components/navigation/BottomNav';
+import { passwordValidation } from '../../src/utils/validation';
+import { login } from '../../src/utils/fetchApi/auth';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,6 +21,15 @@ const useStyles = makeStyles((theme) => ({
     // zIndex: theme.zIndex.appBar,
     // backgroundColor: theme.palette.background.paper,
     // margin: '0 auto',
+
+    // minHeight: '100vh',
+    marginTop: '0',
+    padding: '4rem 0',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
     width: '100%',
@@ -30,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Login() {
   const classes = useStyles();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     username: '',
     password: '',
@@ -44,6 +57,10 @@ export default function Login() {
       message: '',
     },
   });
+  const [alert, setAlert] = useState({
+    status: false,
+    message: '',
+  });
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
@@ -54,15 +71,16 @@ export default function Login() {
         break;
       case 'password':
         setData({ ...data, password: e.target.value });
-      // passwordValidation(e.target.value)
-      //   ? setError({ ...error, password: { status: false, message: '' } })
-      //   : setError({
-      //     ...error,
-      //     password: {
-      //       status: true,
-      //       message: 'password must be at least 6 char contain number, lowercase and uppercase letter',
-      //     },
-      //   });
+        passwordValidation(e.target.value)
+          ? setError({ ...error, password: { status: false, message: '' } })
+          : setError({
+            ...error,
+            password: {
+              status: true,
+              message: 'password must be at least 6 char',
+              // message: 'password must be at least 6 char contain number, lowercase and uppercase letter',
+            },
+          });
     }
   };
 
@@ -74,16 +92,16 @@ export default function Login() {
         message: 'please fill all fields',
       });
     } else {
-      const res = await superadminLogin(setLoading, setAlert, data);
+      const res = await login(setLoading, setAlert, data);
       console.log(res);
-      setCookie(null, 'token', res.data.data.token);
-      switch (res.status) {
-        case 200:
-          router.push('/superadmin/dashboard');
-          break;
-        default:
-          break;
-      }
+      // setCookie(null, 'token', res.data.data.token);
+      // switch (res.status) {
+      //   case 200:
+      //     router.push('/superadmin/dashboard');
+      //     break;
+      //   default:
+      //     break;
+      // }
     }
   };
 
@@ -127,8 +145,8 @@ export default function Login() {
               path='text'
               fullWidth
               onChange={(e) => handleOnChange(e)}
-            // error={error.username.status}
-            // helperText={error.username.message}
+              error={error.username.status}
+              helperText={error.username.message}
             ></TextField>
             <br />
             <TextField
@@ -139,8 +157,8 @@ export default function Login() {
               type={showPassword ? 'text' : 'password'}
               fullWidth
               onChange={(e) => handleOnChange(e)}
-              // error={error.password.status}
-              // helperText={error.password.message}
+              error={error.password.status}
+              helperText={error.password.message}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -156,6 +174,13 @@ export default function Login() {
               Login
             </Button>
           </Box>
+          <Typography variant='body2' color='textSecondary' align='right' style={{ marginTop: '1rem' }}>
+            {'Forgot password? '}
+            <MaterialLink href='/account/forgot-password'>Reset Password</MaterialLink>
+          </Typography>
+          <Typography variant='body2' color='textSecondary' align='center' style={{ marginTop: '3rem' }}>
+            Have no account? <MaterialLink href='/account/register'>Register</MaterialLink>
+          </Typography>
         </div>
       </main>
 

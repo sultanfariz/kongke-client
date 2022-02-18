@@ -11,7 +11,8 @@ const useStyles = makeStyles((theme) => ({
     // minHeight: '50vh',
     maxWidth: '576px',
     margin: 'auto',
-    padding: '40px 20px',
+    marginBottom: '1rem',
+    // padding: '40px 20px',
   },
 }));
 

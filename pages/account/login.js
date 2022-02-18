@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { makeStyles } from '@mui/styles';
-import { TextField, Button, InputAdornment, IconButton, Typography, Box, Link as MaterialLink } from '@mui/material';
+import { Alert, TextField, Button, InputAdornment, IconButton, Typography, Box, Link as MaterialLink, Snackbar } from '@mui/material';
 import { VisibilityOff, Visibility, Google } from '@mui/icons-material';
 import { setCookie } from 'nookies';
 import styles from '../../styles/Home.module.css';
@@ -40,7 +41,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Login() {
+  const router = useRouter();
   const classes = useStyles();
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
@@ -78,7 +81,6 @@ export default function Login() {
             password: {
               status: true,
               message: 'password must be at least 6 char',
-              // message: 'password must be at least 6 char contain number, lowercase and uppercase letter',
             },
           });
     }
@@ -93,16 +95,26 @@ export default function Login() {
       });
     } else {
       const res = await login(setLoading, setAlert, data);
-      console.log(res);
-      // setCookie(null, 'token', res.data.data.token);
-      // switch (res.status) {
-      //   case 200:
-      //     router.push('/superadmin/dashboard');
-      //     break;
-      //   default:
-      //     break;
-      // }
+      console.log(res.status);
+      if (res.status === 200) {
+        setCookie(null, 'token', res.data.token);
+        switch (res.status) {
+          case 200:
+            router.push('/');
+            break;
+          default:
+            break;
+        }
+      }
     }
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setAlert({ ...alert, status: false });
   };
 
   return (
@@ -113,22 +125,17 @@ export default function Login() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
+      <Snackbar open={alert.status} autoHideDuration={6000} onClose={handleClose}
+        style={{ marginBottom: '76px' }}>
+        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
+
       <main className={styles.main}>
-        {/* <h1 className={styles.title}>
-          Welcome to <a href='https://nextjs.org'>Kongke!</a>
-        </h1> */}
+        <p className={styles.description}>Login to your account</p>
 
-        <p className={styles.description}>
-          {/* Get started by editing <code className={styles.code}>pages/index.js</code> */}
-          Login to your account
-        </p>
-
-        {/* <div className={styles.grid}> */}
-        <div style={{
-          // display: 'flex',
-          width: '100%',
-        }}>
-          {/* <Box component='form' className={classes.loginForm} onSubmit={(e) => handleOnSubmit(e)}> */}
+        <div style={{ width: '100%' }}>
           <Box component='form'
             style={{
               display: 'flex',
@@ -170,13 +177,15 @@ export default function Login() {
               }}
             ></TextField>
             <br />
-            <Button type='submit' variant='contained' className={classes.button}>
-              Login
-            </Button>
+            {loading ?
+              <Button type='submit' variant='contained' className={classes.button} disabled>Loading...</Button> :
+              error.password.status || error.username.status ?
+                <Button type='submit' variant='contained' className={classes.button} disabled>Login</Button> :
+                <Button type='submit' variant='contained' className={classes.button}>Login</Button>
+            }
           </Box>
           <Typography variant='body2' color='textSecondary' align='right' style={{ marginTop: '1rem' }}>
-            {'Forgot password? '}
-            <MaterialLink href='/account/forgot-password'>Reset Password</MaterialLink>
+            <MaterialLink href='/account/forgot-password'>Forgot Password?</MaterialLink>
           </Typography>
           <Typography variant='body2' color='textSecondary' align='center' style={{ marginTop: '3rem' }}>
             Have no account? <MaterialLink href='/account/register'>Register</MaterialLink>

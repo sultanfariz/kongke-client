@@ -95,16 +95,14 @@ export default function Login() {
       });
     } else {
       const res = await login(setLoading, setAlert, data);
-      console.log(res.status);
-      if (res.status === 200) {
-        setCookie(null, 'token', res.data.token);
-        switch (res.status) {
-          case 200:
-            router.push('/');
-            break;
-          default:
-            break;
-        }
+      switch (res.status) {
+        case 200:
+          console.log('login success');
+          setCookie(null, 'token', res.data.data.token);
+          router.push('/');
+          break;
+        default:
+          break;
       }
     }
   };

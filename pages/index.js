@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Box, TextField, Button } from '@mui/material';
 import styles from '../styles/Home.module.css';
 import { BottomNav } from '../src/components/navigation/BottomNav';
-import jwtDecode from '../src/utils/jwt';
+import { jwtDecode, getJwt } from '../src/utils/jwt';
 import Forbidden from '../src/components/pages/Forbidden';
 import { makeStyles } from '@mui/styles';
 import { io } from 'socket.io-client';
@@ -30,13 +30,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home() {
   const classes = useStyles();
+  const [jwt, setJwt] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState({});
   const [messages, setMessages] = useState([])
-  const [messageSent, setMessageSent] = useState({
-    user: user?.username,
-    text: '',
-  });
+  const [messageSent, setMessageSent] = useState();
   const [message, setMessage] = useState({
     user: user?.username,
     text: '',
@@ -44,22 +42,38 @@ export default function Home() {
 
   useEffect(() => {
     const socket = io('http://localhost:5000', {
-      transports: ['websocket']
+      transports: ['websocket'],
+      extraHeaders: { Authorization: `Bearer ${jwt}` },
+      query: `token=${jwt}`
     });
+    socket
+      .on('authenticated', function () {
+        //do other things
+        console.log("ngentot")
+      })
+      .emit('authenticate', { token: jwt });
     socket.emit('chat', messageSent);
-  }, [messageSent]);
+  }, [messageSent, jwt]);
 
   useEffect(() => {
     const socket = io('http://localhost:5000', {
-      transports: ['websocket']
+      transports: ['websocket'],
+      extraHeaders: { Authorization: `Bearer ${jwt}` },
+      query: `token=${jwt}`
     });
+    socket
+      .on('authenticated', function () {
+        //do other things
+        console.log("ngentot")
+      })
+      .emit('authenticate', { token: jwt });
     socket.on("connect_error", (err) => {
       console.log(`connect_error due to ${err.message}`);
     });
     socket.on("disconnect", (reason) => {
       if (reason === "io server disconnect") {
         // the disconnection was initiated by the server, you need to reconnect manually
-        console.log(reason);
+        console.log("reason", reason);
         socket.connect();
       }
       // else the socket will automatically try to reconnect
@@ -69,13 +83,14 @@ export default function Home() {
       // setMessages(messages => [...messages, data])
       setMessages([...messages, data])
     })
-  }, [messages])
+  }, [messages, jwt]);
   console.log("messages", messages)
 
   useEffect(() => {
     const { id, username } = jwtDecode();
     if (!id) setIsAuthenticated(false);
     else {
+      setJwt(getJwt());
       setUser({ id, username });
       setMessage({ user: username, text: '' });
       setIsAuthenticated(true);

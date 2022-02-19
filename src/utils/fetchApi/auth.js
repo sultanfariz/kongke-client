@@ -15,6 +15,7 @@ export async function register(setLoading, setAlert, { username, password }) {
       console.log("err", err);
       setAlert({
         status: true,
+        error: true,
         message: err?.response?.data?.message,
       });
       return err.response;
@@ -24,13 +25,12 @@ export async function register(setLoading, setAlert, { username, password }) {
     });
 }
 
-export async function login(setLoadingState, setAlert, { username, password }) {
-  setLoadingState(true);
-  return baseApi
-    .post(`/auth/login`, {
-      username,
-      password,
-    })
+export async function login(setLoading, setAlert, { username, password }) {
+  setLoading(true);
+  return baseApi.post(`/auth/login`, {
+    username,
+    password,
+  })
     .then((res) => {
       return res;
     })
@@ -42,7 +42,7 @@ export async function login(setLoadingState, setAlert, { username, password }) {
       return err.response;
     })
     .finally(() => {
-      setLoadingState(false);
+      setLoading(false);
     });
 }
 
@@ -57,8 +57,8 @@ export async function logout(setAlert) {
   }
 }
 
-// export async function updatePassword(setLoadingState, setAlert, { username, password, newPassword }) {
-//   setLoadingState(true);
+// export async function updatePassword(setLoading, setAlert, { username, password, newPassword }) {
+//   setLoading(true);
 //   const data = { username, password, newPassword };
 //   return fetch(`${process.env.NEXT_PUBLIC_SERVER_API_URL}superadmin`, {
 //     method: 'PUT',
@@ -71,7 +71,7 @@ export async function logout(setAlert) {
 //     },
 //     body: JSON.stringify(data),
 //   }).then(async (res) => {
-//     setLoadingState(false);
+//     setLoading(false);
 //     return await res.json();
 //   });
 // }

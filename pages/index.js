@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home() {
   const classes = useStyles();
-  const [jwt, setJwt] = useState('');
+  const [jwt, setJwt] = useState(getJwt());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState({});
   const [messages, setMessages] = useState([])
@@ -47,13 +47,19 @@ export default function Home() {
       query: `token=${jwt}`
     });
     socket
+      .emit('authenticate', { token: jwt })
       .on('authenticated', function () {
         //do other things
-        console.log("ngentot")
+        console.log("authenticated")
       })
-      .emit('authenticate', { token: jwt });
+      .on('unauthorized', (msg) => {
+        console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
+        setIsAuthenticated(false);
+      })
     socket.emit('chat', messageSent);
+    console.log("jwtatas", jwt)
   }, [messageSent, jwt]);
+
 
   useEffect(() => {
     const socket = io('http://localhost:5000', {
@@ -62,12 +68,19 @@ export default function Home() {
       query: `token=${jwt}`
     });
     socket
+      .emit('authenticate', { token: jwt })
       .on('authenticated', function () {
         //do other things
-        console.log("ngentot")
+        console.log("authenticated")
+        setIsAuthenticated(true);
       })
-      .emit('authenticate', { token: jwt });
+      .on('unauthorized', (msg) => {
+        console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
+        setIsAuthenticated(false);
+      })
     socket.on("connect_error", (err) => {
+      if (err.message === "no token provided" || err.message === "jwt expired")
+        setIsAuthenticated(false);
       console.log(`connect_error due to ${err.message}`);
     });
     socket.on("disconnect", (reason) => {
@@ -83,6 +96,7 @@ export default function Home() {
       // setMessages(messages => [...messages, data])
       setMessages([...messages, data])
     })
+    console.log("jwtbawah", jwt)
   }, [messages, jwt]);
   console.log("messages", messages)
 
@@ -135,6 +149,7 @@ export default function Home() {
                 justifyContent: 'center',
                 border: '1px solid #ccc',
                 borderRadius: '4px',
+                marginTop: '1rem',
               }}>
               <Box
                 style={{
@@ -148,32 +163,11 @@ export default function Home() {
                   borderRadius: '4px',
                 }}>
                 {messages.map((message, index) => (
-                  <Box
-                    key={index}
+                  <p key={index}
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'start',
-                      justifyContent: 'center',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                    }}>
-                    <Box
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'start',
-                        justifyContent: 'center',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                      }}>
-                      {`${message.user}: ${message.text}`}
-                    </Box>
-                  </Box>
+                      margin: '0.5rem 0',
+                    }}
+                  ><strong>{`${message.user}: `}</strong>{message.text}</p>
                 ))}
               </Box>
             </Box>
@@ -188,6 +182,7 @@ export default function Home() {
                 width: '464px',
                 position: 'fixed',
                 bottom: '76px',
+                backgroundColor: '#fff',
               }}
             >
               <TextField
@@ -243,8 +238,9 @@ export default function Home() {
             </a>
           </footer>
         </>
-      )}
+      )
+      }
       <BottomNav label='Home' />
-    </div>
+    </div >
   );
 }

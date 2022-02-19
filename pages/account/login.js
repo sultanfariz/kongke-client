@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { makeStyles } from '@mui/styles';
 import { Alert, TextField, Button, InputAdornment, IconButton, Typography, Box, Link as MaterialLink, Snackbar } from '@mui/material';
-import { VisibilityOff, Visibility, Google } from '@mui/icons-material';
+import { VisibilityOff, Visibility } from '@mui/icons-material';
 import { setCookie } from 'nookies';
 import styles from '../../styles/Home.module.css';
 import { BottomNav } from '../../src/components/navigation/BottomNav';
@@ -97,7 +96,6 @@ export default function Login() {
       const res = await login(setLoading, setAlert, data);
       switch (res.status) {
         case 200:
-          console.log('login success');
           setCookie(null, 'token', res.data.data.token);
           router.push('/');
           break;

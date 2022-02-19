@@ -15,9 +15,9 @@ export async function register(setLoading, setAlert, { username, password }) {
       console.log("err", err);
       setAlert({
         status: true,
-        message: err.response.data.message,
+        message: err?.response?.data?.message,
       });
-      return err;
+      return err.response;
     })
     .finally(() => {
       setLoading(false);

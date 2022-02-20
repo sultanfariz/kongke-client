@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
   textField: {
     width: '100%',
-  }
+  },
 }));
 
 export default function Login() {
@@ -114,8 +114,7 @@ export default function Login() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <Snackbar open={alert.status} autoHideDuration={6000} onClose={handleClose}
-        style={{ marginBottom: '76px' }}>
+      <Snackbar open={alert.status} autoHideDuration={6000} onClose={handleClose} style={{ marginBottom: '76px' }}>
         <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
           {alert.message}
         </Alert>

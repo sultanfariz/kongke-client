@@ -3,16 +3,17 @@ import { destroyCookie, parseCookies } from 'nookies';
 
 export async function register(setLoading, setAlert, { username, password }) {
   setLoading(true);
-  return await baseApi.post('/auth/register', {
-    username,
-    password,
-  })
+  return await baseApi
+    .post('/auth/register', {
+      username,
+      password,
+    })
     .then((res) => {
-      console.log("res", res);
+      console.log('res', res);
       return res;
     })
     .catch((err) => {
-      console.log("err", err);
+      console.log('err', err);
       setAlert({
         status: true,
         error: true,
@@ -27,10 +28,11 @@ export async function register(setLoading, setAlert, { username, password }) {
 
 export async function login(setLoading, setAlert, { username, password }) {
   setLoading(true);
-  return baseApi.post(`/auth/login`, {
-    username,
-    password,
-  })
+  return baseApi
+    .post(`/auth/login`, {
+      username,
+      password,
+    })
     .then((res) => {
       return res;
     })

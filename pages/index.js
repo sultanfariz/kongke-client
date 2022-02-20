@@ -20,10 +20,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   button: {
-    // width: '100%',
   },
   textField: {
-    // width: '100%',
     marginRight: '1rem',
   }
 }));
@@ -31,12 +29,9 @@ const useStyles = makeStyles((theme) => ({
 export default function Home() {
   const classes = useStyles();
   const [socket, setSocket] = useState(null);
-  const [jwt, setJwt] = useState(getJwt());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState({});
   const [messages, setMessages] = useState([])
-  // const [messageSent, setMessageSent] = useState();
-  // const [newMessage, setNewMessage] = useState({});
   const [message, setMessage] = useState({
     user: user?.username,
     text: '',
@@ -47,7 +42,6 @@ export default function Home() {
     if (!id) setIsAuthenticated(false);
     else {
       const jwt = getJwt();
-      setJwt(jwt);
       setUser({ id, username });
       setMessage({ user: username, text: '' });
       setIsAuthenticated(true);
@@ -59,111 +53,43 @@ export default function Home() {
       socket
         .emit('authenticate', { token: jwt })
         .on('authenticated', function () {
-          //do other things
           // console.log("authenticated")
           setIsAuthenticated(true);
         })
         .on('unauthorized', (msg) => {
           // console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
           setIsAuthenticated(false);
-        })
+        });
+      socket.on("connect_error", (err) => {
+        if (err.message === "no token provided" || err.message === "jwt expired")
+          setIsAuthenticated(false);
+        // console.log(`connect_error due to ${err.message}`);
+      });
+      socket.on("disconnect", (reason) => {
+        if (reason === "io server disconnect") {
+          // the disconnection was initiated by the server, you need to reconnect manually
+          socket.connect();
+        }
+      });
       setSocket(socket);
     }
   }, []);
 
-
-  // useEffect(() => {
-  //   const socket = io('http://localhost:5000', {
-  //     transports: ['websocket'],
-  //     extraHeaders: { Authorization: `Bearer ${jwt}` },
-  //     query: `token=${jwt}`
-  //   });
-  //   socket
-  //     .emit('authenticate', { token: jwt })
-  //     .on('authenticated', function () {
-  //       //do other things
-  //       // console.log("authenticated")
-  //       setIsAuthenticated(true);
-  //     })
-  //     .on('unauthorized', (msg) => {
-  //       // console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-  //       setIsAuthenticated(false);
-  //     })
-  //   setSocket(socket);
-  //   console.log("jwt", jwt)
-  // }, [jwt]);
-
-  // useEffect(() => {
-  //   socket.emit('chat', messageSent);
-  //   // console.log("jwtatas", jwt)
-  // }, [messageSent, socket]);
-
   useEffect(() => {
-    socket?.on("connect_error", (err) => {
-      if (err.message === "no token provided" || err.message === "jwt expired")
-        setIsAuthenticated(false);
-      // console.log(`connect_error due to ${err.message}`);
-    });
-    socket?.on("disconnect", (reason) => {
-      if (reason === "io server disconnect") {
-        // the disconnection was initiated by the server, you need to reconnect manually
-        // console.log("reason", reason);
-        socket.connect();
-      }
-      // else the socket will automatically try to reconnect
-    });
     socket?.on('chat', (data) => {
       console.log("socket on", data);
+      let temp = messages;
+      temp.push(data);
+      setMessages([...temp]);
       // setMessages(messages => [...messages, data])
-      setMessages([...messages, data])
+      // setMessages([...messages, data])
       // setNewMessage(data);
     })
-    // console.log("jwtbawah", jwt)
-    // console.log("render")
-  }, [messages, socket]);
-
-  // console.log("messages", messages)
+  }, [socket]);
 
   const sendMessage = (e) => {
-    // const socket = io('http://localhost:5000', {
-    //   transports: ['websocket'],
-    //   extraHeaders: { Authorization: `Bearer ${jwt}` },
-    //   query: `token=${jwt}`
-    // });
-    // socket
-    //   .emit('authenticate', { token: jwt })
-    //   .on('authenticated', function () {
-    //     //do other things
-    //     // console.log("authenticated")
-    //     setIsAuthenticated(true);
-    //   })
-    //   .on('unauthorized', (msg) => {
-    //     // console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-    //     setIsAuthenticated(false);
-    //   })
-    // socket.on("connect_error", (err) => {
-    //   if (err.message === "no token provided" || err.message === "jwt expired")
-    //     setIsAuthenticated(false);
-    //   // console.log(`connect_error due to ${err.message}`);
-    // });
-    // socket.on("disconnect", (reason) => {
-    //   if (reason === "io server disconnect") {
-    //     // the disconnection was initiated by the server, you need to reconnect manually
-    //     // console.log("reason", reason);
-    //     socket.connect();
-    //   }
-    //   // else the socket will automatically try to reconnect
-    // });
-    // socket.on('chat', (data) => {
-    //   console.log("socket on", data);
-    //   // setMessages(messages => [...messages, data])
-    //   setMessages([...messages, data])
-    //   // setNewMessage(data);
-    // })
     e.preventDefault()
     socket.emit('chat', message)
-    // setMessageSent({ user: message.user, text: message.text });
-    // console.log("message", message)
     setMessage({ ...message, text: '' });
   }
 
@@ -181,10 +107,6 @@ export default function Home() {
             <h1 className={styles.title}>
               Welcome to <a href='https://kongke.vercel.app'>Kongke!</a>
             </h1>
-
-            {/* <p className={styles.description}>
-              Get started by editing <code className={styles.code}>pages/index.js</code>
-            </p> */}
 
             {/* chatbox */}
             <Box
@@ -220,18 +142,17 @@ export default function Home() {
               </Box>
             </Box>
 
-            <div
-              // className={styles.grid}
+            <form
               style={{
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                // width: '100%',
                 width: '464px',
                 position: 'fixed',
                 bottom: '76px',
                 backgroundColor: '#fff',
               }}
+              onSubmit={sendMessage}
             >
               <TextField
                 className={classes.textField}
@@ -241,36 +162,9 @@ export default function Home() {
                 fullWidth
                 value={message.text}
                 onChange={e => setMessage({ ...message, text: e.target.value })}
-              // onChange={(e) => handleOnChange(e)}
-              // error={error.username.status}
-              // helperText={error.username.message}
               ></TextField>
-              <Button type='submit' variant='contained' className={classes.button}
-                onClick={sendMessage}>Send</Button>
-
-              {/* <a href='https://nextjs.org/docs' className={styles.card}>
-                <h2>Documentation &rarr;</h2>
-                <p>Find in-depth information about Next.js features and API.</p>
-              </a>
-
-              <a href='https://nextjs.org/learn' className={styles.card}>
-                <h2>Learn &rarr;</h2>
-                <p>Learn about Next.js in an interactive course with quizzes!</p>
-              </a>
-
-              <a href='https://github.com/vercel/next.js/tree/canary/examples' className={styles.card}>
-                <h2>Examples &rarr;</h2>
-                <p>Discover and deploy boilerplate example Next.js projects.</p>
-              </a>
-
-              <a
-                href='https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app'
-                className={styles.card}
-              >
-                <h2>Deploy &rarr;</h2>
-                <p>Instantly deploy your Next.js site to a public URL with Vercel.</p>
-              </a> */}
-            </div>
+              <Button type='submit' variant='contained' className={classes.button}>Send</Button>
+            </form>
           </main>
 
           <footer className={styles.footer}>
@@ -286,8 +180,7 @@ export default function Home() {
             </a>
           </footer>
         </>
-      )
-      }
+      )}
       <BottomNav label='Home' />
     </div >
   );

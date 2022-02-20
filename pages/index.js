@@ -30,91 +30,139 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home() {
   const classes = useStyles();
+  const [socket, setSocket] = useState(null);
   const [jwt, setJwt] = useState(getJwt());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState({});
   const [messages, setMessages] = useState([])
-  const [messageSent, setMessageSent] = useState();
+  // const [messageSent, setMessageSent] = useState();
+  // const [newMessage, setNewMessage] = useState({});
   const [message, setMessage] = useState({
     user: user?.username,
     text: '',
   })
 
   useEffect(() => {
-    const socket = io('http://localhost:5000', {
-      transports: ['websocket'],
-      extraHeaders: { Authorization: `Bearer ${jwt}` },
-      query: `token=${jwt}`
-    });
-    socket
-      .emit('authenticate', { token: jwt })
-      .on('authenticated', function () {
-        //do other things
-        console.log("authenticated")
-      })
-      .on('unauthorized', (msg) => {
-        console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-        setIsAuthenticated(false);
-      })
-    socket.emit('chat', messageSent);
-    console.log("jwtatas", jwt)
-  }, [messageSent, jwt]);
+    const { id, username } = jwtDecode();
+    if (!id) setIsAuthenticated(false);
+    else {
+      const jwt = getJwt();
+      setJwt(jwt);
+      setUser({ id, username });
+      setMessage({ user: username, text: '' });
+      setIsAuthenticated(true);
+      const socket = io('http://localhost:5000', {
+        transports: ['websocket'],
+        extraHeaders: { Authorization: `Bearer ${jwt}` },
+        query: `token=${jwt}`
+      });
+      socket
+        .emit('authenticate', { token: jwt })
+        .on('authenticated', function () {
+          //do other things
+          // console.log("authenticated")
+          setIsAuthenticated(true);
+        })
+        .on('unauthorized', (msg) => {
+          // console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
+          setIsAuthenticated(false);
+        })
+      setSocket(socket);
+    }
+  }, []);
 
+
+  // useEffect(() => {
+  //   const socket = io('http://localhost:5000', {
+  //     transports: ['websocket'],
+  //     extraHeaders: { Authorization: `Bearer ${jwt}` },
+  //     query: `token=${jwt}`
+  //   });
+  //   socket
+  //     .emit('authenticate', { token: jwt })
+  //     .on('authenticated', function () {
+  //       //do other things
+  //       // console.log("authenticated")
+  //       setIsAuthenticated(true);
+  //     })
+  //     .on('unauthorized', (msg) => {
+  //       // console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
+  //       setIsAuthenticated(false);
+  //     })
+  //   setSocket(socket);
+  //   console.log("jwt", jwt)
+  // }, [jwt]);
+
+  // useEffect(() => {
+  //   socket.emit('chat', messageSent);
+  //   // console.log("jwtatas", jwt)
+  // }, [messageSent, socket]);
 
   useEffect(() => {
-    const socket = io('http://localhost:5000', {
-      transports: ['websocket'],
-      extraHeaders: { Authorization: `Bearer ${jwt}` },
-      query: `token=${jwt}`
-    });
-    socket
-      .emit('authenticate', { token: jwt })
-      .on('authenticated', function () {
-        //do other things
-        console.log("authenticated")
-        setIsAuthenticated(true);
-      })
-      .on('unauthorized', (msg) => {
-        console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-        setIsAuthenticated(false);
-      })
-    socket.on("connect_error", (err) => {
+    socket?.on("connect_error", (err) => {
       if (err.message === "no token provided" || err.message === "jwt expired")
         setIsAuthenticated(false);
-      console.log(`connect_error due to ${err.message}`);
+      // console.log(`connect_error due to ${err.message}`);
     });
-    socket.on("disconnect", (reason) => {
+    socket?.on("disconnect", (reason) => {
       if (reason === "io server disconnect") {
         // the disconnection was initiated by the server, you need to reconnect manually
-        console.log("reason", reason);
+        // console.log("reason", reason);
         socket.connect();
       }
       // else the socket will automatically try to reconnect
     });
-    socket.on('chat', (data) => {
-      console.log("data", data);
+    socket?.on('chat', (data) => {
+      console.log("socket on", data);
       // setMessages(messages => [...messages, data])
       setMessages([...messages, data])
+      // setNewMessage(data);
     })
-    console.log("jwtbawah", jwt)
-  }, [messages, jwt]);
-  console.log("messages", messages)
+    // console.log("jwtbawah", jwt)
+    // console.log("render")
+  }, [messages, socket]);
 
-  useEffect(() => {
-    const { id, username } = jwtDecode();
-    if (!id) setIsAuthenticated(false);
-    else {
-      setJwt(getJwt());
-      setUser({ id, username });
-      setMessage({ user: username, text: '' });
-      setIsAuthenticated(true);
-    }
-  }, []);
+  // console.log("messages", messages)
 
   const sendMessage = (e) => {
+    // const socket = io('http://localhost:5000', {
+    //   transports: ['websocket'],
+    //   extraHeaders: { Authorization: `Bearer ${jwt}` },
+    //   query: `token=${jwt}`
+    // });
+    // socket
+    //   .emit('authenticate', { token: jwt })
+    //   .on('authenticated', function () {
+    //     //do other things
+    //     // console.log("authenticated")
+    //     setIsAuthenticated(true);
+    //   })
+    //   .on('unauthorized', (msg) => {
+    //     // console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
+    //     setIsAuthenticated(false);
+    //   })
+    // socket.on("connect_error", (err) => {
+    //   if (err.message === "no token provided" || err.message === "jwt expired")
+    //     setIsAuthenticated(false);
+    //   // console.log(`connect_error due to ${err.message}`);
+    // });
+    // socket.on("disconnect", (reason) => {
+    //   if (reason === "io server disconnect") {
+    //     // the disconnection was initiated by the server, you need to reconnect manually
+    //     // console.log("reason", reason);
+    //     socket.connect();
+    //   }
+    //   // else the socket will automatically try to reconnect
+    // });
+    // socket.on('chat', (data) => {
+    //   console.log("socket on", data);
+    //   // setMessages(messages => [...messages, data])
+    //   setMessages([...messages, data])
+    //   // setNewMessage(data);
+    // })
     e.preventDefault()
-    // socket.emit('chat', message)
-    setMessageSent({ user: message.user, text: message.text })
+    socket.emit('chat', message)
+    // setMessageSent({ user: message.user, text: message.text });
     // console.log("message", message)
     setMessage({ ...message, text: '' });
   }

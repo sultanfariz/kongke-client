@@ -23,7 +23,32 @@ const useStyles = makeStyles((theme) => ({
   },
   textField: {
     marginRight: '1rem',
-  }
+  },
+  chatbox: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start',
+    justifyContent: 'center',
+    border: '3px solid #ccc',
+    borderRadius: '4px',
+    marginTop: '1rem',
+    marginBottom: '5rem',
+    padding: '1rem',
+  },
+  chatForm: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '464px',
+    position: 'fixed',
+    bottom: '76px',
+    backgroundColor: '#fff',
+  },
+  chat: {
+    margin: '0.5rem 0',
+  },
 }));
 
 export default function Home() {
@@ -77,13 +102,7 @@ export default function Home() {
 
   useEffect(() => {
     socket?.on('chat', (data) => {
-      console.log("socket on", data);
-      let temp = messages;
-      temp.push(data);
-      setMessages([...temp]);
-      // setMessages(messages => [...messages, data])
-      // setMessages([...messages, data])
-      // setNewMessage(data);
+      setMessages(prevState => [...prevState, data]);
     })
   }, [socket]);
 
@@ -109,51 +128,13 @@ export default function Home() {
             </h1>
 
             {/* chatbox */}
-            <Box
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'start',
-                justifyContent: 'center',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                marginTop: '1rem',
-              }}>
-              <Box
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'start',
-                  justifyContent: 'center',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                }}>
-                {messages.map((message, index) => (
-                  <p key={index}
-                    style={{
-                      margin: '0.5rem 0',
-                    }}
-                  ><strong>{`${message.user}: `}</strong>{message.text}</p>
-                ))}
-              </Box>
+            <Box className={classes.chatbox}>
+              {messages.map((message, index) => (
+                <p key={index} className={classes.chat}><strong>{`${message.user}: `}</strong>{message.text}</p>
+              ))}
             </Box>
 
-            <form
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '464px',
-                position: 'fixed',
-                bottom: '76px',
-                backgroundColor: '#fff',
-              }}
-              onSubmit={sendMessage}
-            >
+            <form className={classes.chatForm} onSubmit={sendMessage}>
               <TextField
                 className={classes.textField}
                 label='Type your message here'
@@ -166,19 +147,6 @@ export default function Home() {
               <Button type='submit' variant='contained' className={classes.button}>Send</Button>
             </form>
           </main>
-
-          <footer className={styles.footer}>
-            <a
-              href='https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              Powered by{' '}
-              <span className={styles.logo}>
-                <Image src='/vercel.svg' alt='Vercel Logo' width={72} height={16} />
-              </span>
-            </a>
-          </footer>
         </>
       )}
       <BottomNav label='Home' />

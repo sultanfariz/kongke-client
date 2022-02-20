@@ -12,17 +12,6 @@ import { login } from '../../src/utils/fetchApi/auth';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    // width: '100%',
-    // position: 'fixed',
-    // bottom: 0,
-    // right: 0,
-    // left: 0,
-    // display: 'flex',
-    // zIndex: theme.zIndex.appBar,
-    // backgroundColor: theme.palette.background.paper,
-    // margin: '0 auto',
-
-    // minHeight: '100vh',
     marginTop: '0',
     padding: '4rem 0',
     flex: 1,
@@ -32,6 +21,13 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   button: {
+    width: '100%',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
     width: '100%',
   },
   textField: {
@@ -106,10 +102,7 @@ export default function Login() {
   };
 
   const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
+    if (reason === 'clickaway') return;
     setAlert({ ...alert, status: false });
   };
 
@@ -130,17 +123,8 @@ export default function Login() {
 
       <main className={styles.main}>
         <p className={styles.description}>Login to your account</p>
-
         <div style={{ width: '100%' }}>
-          <Box component='form'
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-            }}
-            onSubmit={(e) => handleOnSubmit(e)}>
+          <Box component='form' className={classes.form} onSubmit={(e) => handleOnSubmit(e)}>
             <TextField
               className={classes.textField}
               label='Username'

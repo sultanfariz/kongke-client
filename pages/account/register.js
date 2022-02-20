@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { makeStyles } from '@mui/styles';
-import { Alert, TextField, Button, InputAdornment, IconButton, Typography, Box, Link as MaterialLink, Snackbar } from '@mui/material';
+import {
+  Alert,
+  TextField,
+  Button,
+  InputAdornment,
+  IconButton,
+  Typography,
+  Box,
+  Link as MaterialLink,
+  Snackbar,
+} from '@mui/material';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import styles from '../../styles/Home.module.css';
 import { BottomNav } from '../../src/components/navigation/BottomNav';
@@ -21,9 +31,19 @@ const useStyles = makeStyles((theme) => ({
   button: {
     width: '100%',
   },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  snackbar: {
+    marginBottom: '76px',
+  },
   textField: {
     width: '100%',
-  }
+  },
 }));
 
 export default function Register() {
@@ -107,8 +127,7 @@ export default function Register() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <Snackbar open={alert.status} autoHideDuration={6000} onClose={handleClose}
-        style={{ marginBottom: '76px' }}>
+      <Snackbar open={alert.status} autoHideDuration={6000} onClose={handleClose} className={classes.snackbar}>
         <Alert onClose={handleClose} severity={alert.error ? 'error' : 'success'} sx={{ width: '100%' }}>
           {alert.message}
         </Alert>
@@ -118,15 +137,7 @@ export default function Register() {
         <p className={styles.description}>Create an account</p>
 
         <div style={{ width: '100%' }}>
-          <Box component='form'
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-            }}
-            onSubmit={(e) => handleOnSubmit(e)}>
+          <Box component='form' className={classes.form} onSubmit={(e) => handleOnSubmit(e)}>
             <TextField
               className={classes.textField}
               label='Username'
@@ -159,16 +170,20 @@ export default function Register() {
               }}
             ></TextField>
             <br />
-            {loading ?
-              <Button type='submit' variant='contained' className={classes.button} disabled>Loading...</Button> :
-              error.password.status || error.username.status ?
-                <Button type='submit' variant='contained' className={classes.button} disabled>Register</Button> :
-                <Button type='submit' variant='contained' className={classes.button}>Register</Button>
-            }
+            {loading ? (
+              <Button type='submit' variant='contained' className={classes.button} disabled>
+                Loading...
+              </Button>
+            ) : error.password.status || error.username.status ? (
+              <Button type='submit' variant='contained' className={classes.button} disabled>
+                Register
+              </Button>
+            ) : (
+              <Button type='submit' variant='contained' className={classes.button}>
+                Register
+              </Button>
+            )}
           </Box>
-          {/* <Typography variant='body2' color='textSecondary' align='right' style={{ marginTop: '1rem' }}>
-            <MaterialLink href='/account/forgot-password'>Forgot Password?</MaterialLink>
-          </Typography> */}
           <Typography variant='body2' color='textSecondary' align='center' style={{ marginTop: '3rem' }}>
             Already have an account? <MaterialLink href='/account/login'>Login</MaterialLink>
           </Typography>

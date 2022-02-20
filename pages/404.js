@@ -18,6 +18,9 @@ const useStyles = makeStyles((theme) => ({
   text: {
     margin: '5px auto',
   },
+  button: {
+    marginTop: '1rem',
+  }
 }));
 
 export default function NotFound() {
@@ -26,17 +29,15 @@ export default function NotFound() {
   return (
     <div className={classes.root}>
       <Image src={notFound} alt='notfound' />
-      <h1 style={{ margin: '5px auto' }}>404 Not Found</h1>
+      <h1 className={classes.text}>404 Not Found</h1>
       <p className={classes.text}>The page you are looking for does not exist.</p>
       <Button
         variant='contained'
         color='primary'
-        style={{ marginTop: '15px' }}
+        className={classes.button}
         // redirect to login page
         onClick={() => router.push('/')}
-      >
-        Back to Homepage
-      </Button>
+      >Back to Homepage</Button>
       <BottomNav />
     </div>
   );

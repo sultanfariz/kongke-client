@@ -6,8 +6,6 @@ import forbidden from '../../../public/forbidden.webp';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    // width: '100%',
-    // height: '100%',
     minHeight: '90vh',
     display: 'flex',
     flexDirection: 'column',
@@ -18,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
   text: {
     margin: '5px auto',
   },
+  button: {
+    marginTop: '1rem',
+  },
 }));
 
 export default function Forbidden() {
@@ -26,19 +27,15 @@ export default function Forbidden() {
   return (
     <div className={classes.root}>
       <Image src={forbidden} alt='forbidden' />
-      <h1 style={{ margin: '5px auto' }}>403 Forbidden</h1>
-      {/* <p className={classes.text}>You are not authorized to access this page</p> */}
+      <h1 className={classes.text}>403 Forbidden</h1>
       <p className={classes.text}>Please login to access this page</p>
       <Button
         variant='contained'
         color='primary'
-        style={{ marginTop: '15px' }}
-        // // redirect to homepage
-        // onClick={() => router.push('/')}
+        className={classes.button}
         // redirect to login page
         onClick={() => router.push('/account/login')}
       >
-        {/* Back to Homepage */}
         Login
       </Button>
     </div>

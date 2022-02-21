@@ -48,15 +48,34 @@ export async function login(setLoading, setAlert, { username, password }) {
     });
 }
 
-export async function logout(setAlert) {
-  const res = destroyCookie(null, 'token');
-  if (res) {
-    setAlert({
-      status: true,
-      message: 'Logout Successfully',
+export async function logout(setLoading, setAlert) {
+  setLoading(true);
+  const serverRes = await baseApi
+    .post(`/auth/logout`)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      setAlert({
+        status: true,
+        message: err?.response?.data?.message,
+      });
+      return false;
     });
-    return true;
+  if (serverRes.status === 202) {
+    const res = destroyCookie(null, 'token');
+    if (res) {
+      setAlert({
+        status: true,
+        error: false,
+        message: 'Logout Successfully',
+      });
+      setLoading(false);
+      return true;
+    }
   }
+  setLoading(false);
+  return false;
 }
 
 // export async function updatePassword(setLoading, setAlert, { username, password, newPassword }) {

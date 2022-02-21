@@ -1,17 +1,13 @@
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { makeStyles } from '@mui/styles';
 import Image from 'next/image';
 import { Button } from '@mui/material';
 import { logout } from '../../src/utils/fetchApi/auth';
 import dummyPP from '../../public/profile-dummy.png';
-
-import router from 'next/router';
-import { useEffect, useState } from 'react';
-// import { signIn, useSession, signOut } from 'next-auth/client';
-// import { useQuery, useMutation } from '@apollo/client';
-// import { GET_REVIEWER_BY_EMAIL, POST_REVIEWER, DELETE_REVIEW } from '../../src/libs/GraphQL/query';
-// import Loading from '../../src/components/Page/Loading';
-// import Error from '../../src/components/Page/Error';
-// import AccountReviewCard from '../../src/components/Card/AccountReviewCard';
+import Forbidden from '../../src/components/pages/Forbidden';
+import { jwtDecode } from '../../src/utils/jwt';
+import { BottomNav } from '../../src/components/navigation/BottomNav';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,44 +43,55 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Account() {
   const classes = useStyles();
+  const router = useRouter();
+  const [user, setUser] = useState({});
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState({
+    status: false,
+    message: '',
+  });
+
+  useEffect(() => {
+    const { id, username } = jwtDecode();
+    if (!id) setIsAuthenticated(false);
+    else {
+      console.log(id, username);
+      setIsAuthenticated(true);
+      setUser({ id, username });
+    }
+  }, []);
 
   const signout = async () => {
-    const res = await logout(setAlert);
-    switch (res) {
-      case 200:
-        router.push('/account/login');
-        break;
-      default:
-        break;
-    }
+    const res = await logout(setLoading, setAlert);
+    if (res) router.push('/account/login');
   }
 
   return (
-    <div className={classes.root}>
-      <Image
-        className={classes.roundedImage}
-        src={dummyPP}
-        width={125}
-        height={125}
-        alt={"dummy"}
-      />
-      {/* <h2 style={{ marginBottom: '5px' }}>{session?.user?.name}</h2> */}
-      <h2 style={{ marginBottom: '5px' }}>User</h2>
-      {/* <p className={classes.text}>Joined on: {new Date().toDateString()}</p> */}
-      <Button style={{ marginTop: '15px' }} variant='contained' color='primary' onClick={() => signout()}>
-        Sign out
-      </Button>
-      <div className={classes.horizontalLine}></div>
-
-      {/* {getByEmailLoading || deleteReviewLoading ? (
-        <Loading />
-      ) : getByEmailError || deleteReviewError ? (
-        <Error />
-      ) : (
-        getByEmailData?.spill_reviewer[0]?.reviews?.map((review) => {
-          return <AccountReviewCard review={review} key={review.id} removeCard={removeReview} />;
-        })
-      )} */}
-    </div>
+    <>
+      {!isAuthenticated ? <Forbidden /> : (
+        <div className={classes.root}>
+          <>
+            <Image
+              className={classes.roundedImage}
+              src={dummyPP}
+              width={125}
+              height={125}
+              alt={"dummy"}
+            />
+            <h2 style={{ marginBottom: '5px' }}>{user.username}</h2>
+            {/* <p className={classes.text}>Joined on: {new Date().toDateString()}</p> */}
+            {loading ?
+              <Button type='submit' variant='contained' className={classes.button} disabled>Loading...</Button> :
+              <Button style={{ marginTop: '15px' }} variant='contained' color='primary' onClick={() => signout()}>
+                Sign out
+              </Button>
+            }
+            <div className={classes.horizontalLine}></div>
+          </>
+        </div>
+      )}
+      <BottomNav label='Account' />
+    </>
   );
 }

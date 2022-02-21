@@ -7,10 +7,12 @@ const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
     display: 'flow-root',
-    minHeight: '100vh',
+    // minHeight: '100vh',
+    // minHeight: '50vh',
     maxWidth: '576px',
     margin: 'auto',
-    padding: '40px 20px',
+    marginBottom: '1rem',
+    // padding: '40px 20px',
   },
 }));
 
@@ -29,23 +31,3 @@ export const ContainerLayout = ({ children }) => {
 ContainerLayout.propTypes = {
   children: PropTypes.oneOfType([PropTypes.array, PropTypes.element]),
 };
-
-// import React from 'react';
-// import { Container, Box } from '@mui/material';
-// import PropTypes from 'prop-types';
-// import { useStyles } from './ContainerLayoutStyles';
-
-// export const ContainerLayout = ({ children }) => {
-//   const classes = useStyles();
-//   return (
-//     <Box>
-//       <Container className={classes.root}>
-//         <Box>{children}</Box>
-//       </Container>
-//     </Box>
-//   );
-// };
-
-// ContainerLayout.propTypes = {
-//   children: PropTypes.oneOfType([PropTypes.array, PropTypes.element]),
-// };

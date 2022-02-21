@@ -43,9 +43,45 @@ const useStyles = makeStyles((theme) => ({
     position: 'fixed',
     bottom: '76px',
     backgroundColor: '#fff',
+    paddingTop: '0.75rem',
   },
   chat: {
-    margin: '0.5rem 0',
+    margin: '0.25rem 0',
+    backgroundColor: theme.palette.secondary.main,
+    color: '#eee',
+    padding: '0 0.5rem',
+    borderRadius: '20px 20px 20px 0 ',
+    fontSize: '0.75rem',
+  },
+  chatUsername: {
+    width: "100%",
+    marginBottom: "0.5rem",
+    fontWeight: "bold",
+    fontSize: "13px",
+  },
+  chatBalloon: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'start',
+    margin: '0',
+  },
+  userChat: {
+    margin: '0.25rem 0',
+    maxWidth: '70%',
+    backgroundColor: 'rgba(98, 0, 238, 0.8)',
+    color: '#eee',
+    padding: '0 0.5rem',
+    borderRadius: '20px 20px 0 20px',
+    fontSize: '0.75rem',
+  },
+  userChatBalloon: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'end',
+    width: '100%',
+    margin: '0',
   },
 }));
 
@@ -81,7 +117,6 @@ export default function Home() {
 
   useEffect(() => {
     chatboxEnd.current?.scrollIntoView({ behavior: "smooth" });
-    console.log(chatboxEnd.current?.scrollHeight);
   }, [messages]);
 
   const sendMessage = (e) => {
@@ -108,10 +143,22 @@ export default function Home() {
             {/* chatbox */}
             <Box className={classes.chatbox}>
               {messages.map((message, index) => (
-                <p key={index} className={classes.chat}>
-                  <strong>{`${message.user}: `}</strong>
-                  {message.text}
-                </p>
+                message.user === user.username ? (
+                  <Box key={index} className={classes.userChatBalloon}>
+                    <Box className={classes.userChat}>
+                      <p style={{ margin: "0.5rem" }}>{message.text}</p>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box key={index} className={classes.chatBalloon}>
+                    <Box className={classes.chat}>
+                      <Box className={classes.chatUsername}>
+                        <p style={{ margin: "0.5rem 0.1rem" }}>{`${message.user}`}</p>
+                      </Box>
+                      <p style={{ margin: "0.5rem 0.1rem" }}>{message.text}</p>
+                    </Box>
+                  </Box>
+                )
               ))}
               <div ref={chatboxEnd}></div>
             </Box>
@@ -133,6 +180,6 @@ export default function Home() {
         </>
       )}
       <BottomNav label='Home' />
-    </div>
+    </div >
   );
 }

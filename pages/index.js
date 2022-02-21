@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { Box, TextField, Button } from '@mui/material';
 import styles from '../styles/Home.module.css';
@@ -51,6 +51,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home() {
   const classes = useStyles();
+  const chatbox = useRef(null);
+  const chatboxEnd = useRef(null);
   const [socket, setSocket] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState({});
@@ -59,6 +61,21 @@ export default function Home() {
     user: user?.username,
     text: '',
   });
+
+  useEffect(() => {
+    if (chatbox) {
+      chatbox.current?.addEventListener('DOMNodeInserted', event => {
+        const { currentTarget: target } = event;
+        console.log(target.scrollHeight);
+        target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    chatboxEnd.current?.scrollIntoView({ behavior: "smooth" });
+    console.log(chatboxEnd.current?.scrollHeight);
+  }, [messages]);
 
   useEffect(() => {
     const { id, username } = jwtDecode();
@@ -102,6 +119,10 @@ export default function Home() {
     });
   }, [socket]);
 
+  // const scrollToBottom = () => {
+  //   this.chatbox.scrollIntoView({ behavior: "smooth" });
+  // }
+
   const sendMessage = (e) => {
     e.preventDefault();
     socket.emit('chat', message);
@@ -124,13 +145,14 @@ export default function Home() {
               Welcome to <a href='https://kongke.vercel.app'>Kongke!</a>
             </h1>
             {/* chatbox */}
-            <Box className={classes.chatbox}>
+            <Box className={classes.chatbox} ref={chatbox}>
               {messages.map((message, index) => (
                 <p key={index} className={classes.chat}>
                   <strong>{`${message.user}: `}</strong>
                   {message.text}
                 </p>
               ))}
+              <div ref={chatboxEnd}></div>
             </Box>
             <form className={classes.chatForm} onSubmit={sendMessage}>
               <TextField

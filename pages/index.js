@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { Box, TextField, Button } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import styles from '../styles/Home.module.css';
 import { BottomNav } from '../src/components/navigation/BottomNav';
 import { jwtDecode, getJwt } from '../src/utils/jwt';
 import Forbidden from '../src/components/pages/Forbidden';
-import { makeStyles } from '@mui/styles';
-import { io } from 'socket.io-client';
+import { socketInit } from '../src/utils/socket/index';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,7 +51,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home() {
   const classes = useStyles();
-  const chatbox = useRef(null);
   const chatboxEnd = useRef(null);
   const [socket, setSocket] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -63,21 +62,6 @@ export default function Home() {
   });
 
   useEffect(() => {
-    if (chatbox) {
-      chatbox.current?.addEventListener('DOMNodeInserted', event => {
-        const { currentTarget: target } = event;
-        console.log(target.scrollHeight);
-        target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    chatboxEnd.current?.scrollIntoView({ behavior: "smooth" });
-    console.log(chatboxEnd.current?.scrollHeight);
-  }, [messages]);
-
-  useEffect(() => {
     const { id, username } = jwtDecode();
     if (!id) setIsAuthenticated(false);
     else {
@@ -85,31 +69,7 @@ export default function Home() {
       setUser({ id, username });
       setMessage({ user: username, text: '' });
       setIsAuthenticated(true);
-      // init socket connection
-      const socket = io('http://localhost:5000', {
-        transports: ['websocket'],
-        extraHeaders: { Authorization: `Bearer ${jwt}` },
-        query: `token=${jwt}`,
-      });
-      socket
-        .emit('authenticate', { token: jwt })
-        .on('authenticated', function () {
-          // console.log("authenticated")
-          setIsAuthenticated(true);
-        })
-        .on('unauthorized', (msg) => {
-          // console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-          setIsAuthenticated(false);
-        });
-      socket.on('connect_error', (err) => {
-        if (err.message === 'no token provided' || err.message === 'jwt expired') setIsAuthenticated(false);
-        // console.log(`connect_error due to ${err.message}`);
-      });
-      socket.on('disconnect', (reason) => {
-        // the disconnection was initiated by the server, you need to reconnect manually
-        if (reason === 'io server disconnect') socket.connect();
-      });
-      setSocket(socket);
+      socketInit(setSocket, jwt);
     }
   }, []);
 
@@ -119,9 +79,10 @@ export default function Home() {
     });
   }, [socket]);
 
-  // const scrollToBottom = () => {
-  //   this.chatbox.scrollIntoView({ behavior: "smooth" });
-  // }
+  useEffect(() => {
+    chatboxEnd.current?.scrollIntoView({ behavior: "smooth" });
+    console.log(chatboxEnd.current?.scrollHeight);
+  }, [messages]);
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -145,7 +106,7 @@ export default function Home() {
               Welcome to <a href='https://kongke.vercel.app'>Kongke!</a>
             </h1>
             {/* chatbox */}
-            <Box className={classes.chatbox} ref={chatbox}>
+            <Box className={classes.chatbox}>
               {messages.map((message, index) => (
                 <p key={index} className={classes.chat}>
                   <strong>{`${message.user}: `}</strong>

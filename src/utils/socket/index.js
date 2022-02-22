@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-export const socketInit = (setSocketState, jwt) => {
+export const socketInit = (setSocketState, jwt, setIsAuthenticated) => {
   // init socket connection
   const socket = io('http://localhost:5000', {
     transports: ['websocket'],

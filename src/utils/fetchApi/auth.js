@@ -9,11 +9,9 @@ export async function register(setLoading, setAlert, { username, password }) {
       password,
     })
     .then((res) => {
-      console.log('res', res);
       return res;
     })
     .catch((err) => {
-      console.log('err', err);
       setAlert({
         status: true,
         error: true,

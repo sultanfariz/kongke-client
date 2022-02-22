@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { Box, TextField, Button } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import moment from 'moment';
 import styles from '../styles/Home.module.css';
 import { BottomNav } from '../src/components/navigation/BottomNav';
 import { jwtDecode, getJwt } from '../src/utils/jwt';
 import Forbidden from '../src/components/pages/Forbidden';
-import { makeStyles } from '@mui/styles';
-import { io } from 'socket.io-client';
+import { socketInit } from '../src/utils/socket/index';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,14 +44,58 @@ const useStyles = makeStyles((theme) => ({
     position: 'fixed',
     bottom: '76px',
     backgroundColor: '#fff',
+    paddingTop: '0.75rem',
   },
   chat: {
-    margin: '0.5rem 0',
+    margin: '0.25rem 0',
+    backgroundColor: theme.palette.secondary.main,
+    color: '#eee',
+    padding: '0 0.5rem',
+    borderRadius: '20px 20px 20px 0 ',
+    fontSize: '0.75rem',
+    maxWidth: '80%',
+  },
+  chatUsername: {
+    width: "100%",
+    marginBottom: "0.5rem",
+    fontWeight: "bold",
+    fontSize: "13px",
+  },
+  chatBalloon: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'start',
+    margin: '0',
+  },
+  userChat: {
+    margin: '0.25rem 0',
+    maxWidth: '80%',
+    backgroundColor: 'rgba(98, 0, 238, 0.8)',
+    color: '#eee',
+    padding: '0 0.5rem',
+    borderRadius: '20px 20px 0 20px',
+    fontSize: '0.75rem',
+  },
+  userChatDate: {
+    margin: "0.5rem",
+    fontSize: "8px",
+    textAlign: "right",
+    itemAlign: "end"
+  },
+  userChatBalloon: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'end',
+    width: '100%',
+    margin: '0',
   },
 }));
 
 export default function Home() {
   const classes = useStyles();
+  const chatboxEnd = useRef(null);
   const [socket, setSocket] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState({});
@@ -68,39 +113,20 @@ export default function Home() {
       setUser({ id, username });
       setMessage({ user: username, text: '' });
       setIsAuthenticated(true);
-      // init socket connection
-      const socket = io('http://localhost:5000', {
-        transports: ['websocket'],
-        extraHeaders: { Authorization: `Bearer ${jwt}` },
-        query: `token=${jwt}`,
-      });
-      socket
-        .emit('authenticate', { token: jwt })
-        .on('authenticated', function () {
-          // console.log("authenticated")
-          setIsAuthenticated(true);
-        })
-        .on('unauthorized', (msg) => {
-          // console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-          setIsAuthenticated(false);
-        });
-      socket.on('connect_error', (err) => {
-        if (err.message === 'no token provided' || err.message === 'jwt expired') setIsAuthenticated(false);
-        // console.log(`connect_error due to ${err.message}`);
-      });
-      socket.on('disconnect', (reason) => {
-        // the disconnection was initiated by the server, you need to reconnect manually
-        if (reason === 'io server disconnect') socket.connect();
-      });
-      setSocket(socket);
+      socketInit(setSocket, jwt);
     }
   }, []);
 
   useEffect(() => {
     socket?.on('chat', (data) => {
+      console.log(data);
       setMessages((prevState) => [...prevState, data]);
     });
   }, [socket]);
+
+  useEffect(() => {
+    chatboxEnd.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -126,11 +152,26 @@ export default function Home() {
             {/* chatbox */}
             <Box className={classes.chatbox}>
               {messages.map((message, index) => (
-                <p key={index} className={classes.chat}>
-                  <strong>{`${message.user}: `}</strong>
-                  {message.text}
-                </p>
+                message.user === user.username ? (
+                  <Box key={index} className={classes.userChatBalloon}>
+                    <Box className={classes.userChat}>
+                      <p style={{ margin: "0.5rem" }}>{message.text}</p>
+                      <p className={classes.userChatDate}>{moment(message.date).format('dddd MMMM Do YYYY, h:mm a')}</p>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box key={index} className={classes.chatBalloon}>
+                    <Box className={classes.chat}>
+                      <Box className={classes.chatUsername}>
+                        <p style={{ margin: "0.5rem 0.1rem" }}>{`${message.user}`}</p>
+                      </Box>
+                      <p style={{ margin: "0.5rem 0.1rem" }}>{message.text}</p>
+                      <p style={{ margin: "0.5rem 0.1rem", fontSize: "8px" }}>{moment(message.date).format('dddd MMMM Do YYYY, h:mm a')}</p>
+                    </Box>
+                  </Box>
+                )
               ))}
+              <div ref={chatboxEnd}></div>
             </Box>
             <form className={classes.chatForm} onSubmit={sendMessage}>
               <TextField
@@ -150,6 +191,6 @@ export default function Home() {
         </>
       )}
       <BottomNav label='Home' />
-    </div>
+    </div >
   );
 }

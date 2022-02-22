@@ -119,6 +119,7 @@ export default function Home() {
 
   useEffect(() => {
     socket?.on('chat', (data) => {
+      console.log(data);
       setMessages((prevState) => [...prevState, data]);
     });
   }, [socket]);

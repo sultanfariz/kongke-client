@@ -56,7 +56,6 @@ export default function Account() {
     const { id, username } = jwtDecode();
     if (!id) setIsAuthenticated(false);
     else {
-      console.log(id, username);
       setIsAuthenticated(true);
       setUser({ id, username });
     }

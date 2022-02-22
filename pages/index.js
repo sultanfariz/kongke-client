@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { Box, TextField, Button } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import moment from 'moment';
 import styles from '../styles/Home.module.css';
 import { BottomNav } from '../src/components/navigation/BottomNav';
 import { jwtDecode, getJwt } from '../src/utils/jwt';
@@ -52,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '0 0.5rem',
     borderRadius: '20px 20px 20px 0 ',
     fontSize: '0.75rem',
+    maxWidth: '80%',
   },
   chatUsername: {
     width: "100%",
@@ -68,12 +70,18 @@ const useStyles = makeStyles((theme) => ({
   },
   userChat: {
     margin: '0.25rem 0',
-    maxWidth: '70%',
+    maxWidth: '80%',
     backgroundColor: 'rgba(98, 0, 238, 0.8)',
     color: '#eee',
     padding: '0 0.5rem',
     borderRadius: '20px 20px 0 20px',
     fontSize: '0.75rem',
+  },
+  userChatDate: {
+    margin: "0.5rem",
+    fontSize: "8px",
+    textAlign: "right",
+    itemAlign: "end"
   },
   userChatBalloon: {
     display: 'flex',
@@ -147,6 +155,7 @@ export default function Home() {
                   <Box key={index} className={classes.userChatBalloon}>
                     <Box className={classes.userChat}>
                       <p style={{ margin: "0.5rem" }}>{message.text}</p>
+                      <p className={classes.userChatDate}>{moment(message.date).format('dddd MMMM Do YYYY, h:mm a')}</p>
                     </Box>
                   </Box>
                 ) : (
@@ -156,6 +165,7 @@ export default function Home() {
                         <p style={{ margin: "0.5rem 0.1rem" }}>{`${message.user}`}</p>
                       </Box>
                       <p style={{ margin: "0.5rem 0.1rem" }}>{message.text}</p>
+                      <p style={{ margin: "0.5rem 0.1rem", fontSize: "8px" }}>{moment(message.date).format('dddd MMMM Do YYYY, h:mm a')}</p>
                     </Box>
                   </Box>
                 )

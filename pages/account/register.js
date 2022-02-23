@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { makeStyles } from '@mui/styles';
 import {
@@ -17,6 +18,7 @@ import styles from '../../styles/Home.module.css';
 import { BottomNav } from '../../src/components/navigation/BottomNav';
 import { passwordValidation } from '../../src/utils/validation';
 import { register } from '../../src/utils/fetchApi/auth';
+import { jwtDecode } from '../../src/utils/jwt';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,6 +50,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Register() {
   const classes = useStyles();
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
@@ -70,6 +74,16 @@ export default function Register() {
     message: '',
   });
 
+  useEffect(() => {
+    const { id } = jwtDecode();
+    if (!id) setIsAuthenticated(false);
+    else setIsAuthenticated(true);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) router.push('/');
+  }, [isAuthenticated]);
+
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   const handleOnChange = (e) => {
@@ -82,12 +96,12 @@ export default function Register() {
         passwordValidation(e.target.value)
           ? setError({ ...error, password: { status: false, message: '' } })
           : setError({
-            ...error,
-            password: {
-              status: true,
-              message: 'password must be at least 6 char',
-            },
-          });
+              ...error,
+              password: {
+                status: true,
+                message: 'password must be at least 6 char',
+              },
+            });
     }
   };
 

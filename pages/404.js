@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginTop: '1rem',
-  }
+  },
 }));
 
 export default function NotFound() {
@@ -37,7 +37,9 @@ export default function NotFound() {
         className={classes.button}
         // redirect to login page
         onClick={() => router.push('/')}
-      >Back to Homepage</Button>
+      >
+        Back to Homepage
+      </Button>
       <BottomNav />
     </div>
   );

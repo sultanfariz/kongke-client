@@ -13,6 +13,9 @@ const theme = createTheme({
     error: {
       main: red.A400,
     },
+    background: {
+      default: '#fff',
+    },
   },
   typography: {
     fontFamily: ['Poppins', 'Nunito', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'].join(','),

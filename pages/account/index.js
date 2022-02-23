@@ -64,28 +64,27 @@ export default function Account() {
   const signout = async () => {
     const res = await logout(setLoading, setAlert);
     if (res) router.push('/account/login');
-  }
+  };
 
   return (
     <>
-      {!isAuthenticated ? <Forbidden /> : (
+      {!isAuthenticated ? (
+        <Forbidden />
+      ) : (
         <div className={classes.root}>
           <>
-            <Image
-              className={classes.roundedImage}
-              src={dummyPP}
-              width={125}
-              height={125}
-              alt={"dummy"}
-            />
+            <Image className={classes.roundedImage} src={dummyPP} width={125} height={125} alt={'dummy'} />
             <h2 style={{ marginBottom: '5px' }}>{user.username}</h2>
             {/* <p className={classes.text}>Joined on: {new Date().toDateString()}</p> */}
-            {loading ?
-              <Button type='submit' variant='contained' className={classes.button} disabled>Loading...</Button> :
+            {loading ? (
+              <Button type='submit' variant='contained' className={classes.button} disabled>
+                Loading...
+              </Button>
+            ) : (
               <Button style={{ marginTop: '15px' }} variant='contained' color='primary' onClick={() => signout()}>
                 Sign out
               </Button>
-            }
+            )}
             <div className={classes.horizontalLine}></div>
           </>
         </div>

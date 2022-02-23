@@ -67,10 +67,10 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '80%',
   },
   chatUsername: {
-    width: "100%",
-    marginBottom: "0.5rem",
-    fontWeight: "bold",
-    fontSize: "13px",
+    width: '100%',
+    marginBottom: '0.5rem',
+    fontWeight: 'bold',
+    fontSize: '13px',
   },
   chatBalloon: {
     display: 'flex',
@@ -89,10 +89,10 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.75rem',
   },
   userChatDate: {
-    margin: "0.5rem",
-    fontSize: "8px",
-    textAlign: "right",
-    itemAlign: "end"
+    margin: '0.5rem',
+    fontSize: '8px',
+    textAlign: 'right',
+    itemAlign: 'end',
   },
   userChatBalloon: {
     display: 'flex',
@@ -151,7 +151,7 @@ export default function ChatRoom() {
   }, [roomId, user, socket]);
 
   useEffect(() => {
-    chatboxEnd.current?.scrollIntoView({ behavior: "smooth" });
+    chatboxEnd.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const sendMessage = (e) => {
@@ -174,11 +174,11 @@ export default function ChatRoom() {
           <main className={classes.main}>
             {/* chatbox */}
             <Box className={classes.chatbox}>
-              {messages.map((message, index) => (
+              {messages.map((message, index) =>
                 message.user === user.username ? (
                   <Box key={index} className={classes.userChatBalloon}>
                     <Box className={classes.userChat}>
-                      <p style={{ margin: "0.5rem" }}>{message.text}</p>
+                      <p style={{ margin: '0.5rem' }}>{message.text}</p>
                       <p className={classes.userChatDate}>{moment(message.date).format('dddd MMMM Do YYYY, h:mm a')}</p>
                     </Box>
                   </Box>
@@ -186,14 +186,16 @@ export default function ChatRoom() {
                   <Box key={index} className={classes.chatBalloon}>
                     <Box className={classes.chat}>
                       <Box className={classes.chatUsername}>
-                        <p style={{ margin: "0.5rem 0.1rem" }}>{`${message.user}`}</p>
+                        <p style={{ margin: '0.5rem 0.1rem' }}>{`${message.user}`}</p>
                       </Box>
-                      <p style={{ margin: "0.5rem 0.1rem" }}>{message.text}</p>
-                      <p style={{ margin: "0.5rem 0.1rem", fontSize: "8px" }}>{moment(message.date).format('dddd MMMM Do YYYY, h:mm a')}</p>
+                      <p style={{ margin: '0.5rem 0.1rem' }}>{message.text}</p>
+                      <p style={{ margin: '0.5rem 0.1rem', fontSize: '8px' }}>
+                        {moment(message.date).format('dddd MMMM Do YYYY, h:mm a')}
+                      </p>
                     </Box>
                   </Box>
-                )
-              ))}
+                ),
+              )}
               <div ref={chatboxEnd}></div>
             </Box>
             <form className={classes.chatForm} onSubmit={sendMessage}>
@@ -214,6 +216,6 @@ export default function ChatRoom() {
         </>
       )}
       <BottomNav label='Home' />
-    </div >
+    </div>
   );
 }

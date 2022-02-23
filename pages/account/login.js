@@ -2,7 +2,17 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { makeStyles } from '@mui/styles';
-import { Alert, TextField, Button, InputAdornment, IconButton, Typography, Box, Link as MaterialLink, Snackbar } from '@mui/material';
+import {
+  Alert,
+  TextField,
+  Button,
+  InputAdornment,
+  IconButton,
+  Typography,
+  Box,
+  Link as MaterialLink,
+  Snackbar,
+} from '@mui/material';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import { setCookie } from 'nookies';
 import styles from '../../styles/Home.module.css';
@@ -83,12 +93,12 @@ export default function Login() {
         passwordValidation(e.target.value)
           ? setError({ ...error, password: { status: false, message: '' } })
           : setError({
-            ...error,
-            password: {
-              status: true,
-              message: 'password must be at least 6 char',
-            },
-          });
+              ...error,
+              password: {
+                status: true,
+                message: 'password must be at least 6 char',
+              },
+            });
     }
   };
 
@@ -126,7 +136,7 @@ export default function Login() {
       </Head>
 
       <Snackbar open={alert.status} autoHideDuration={6000} onClose={handleClose} style={{ marginBottom: '76px' }}>
-        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+        <Alert onClose={handleClose} severity='error' sx={{ width: '100%' }}>
           {alert.message}
         </Alert>
       </Snackbar>
@@ -167,12 +177,19 @@ export default function Login() {
               }}
             ></TextField>
             <br />
-            {loading ?
-              <Button type='submit' variant='contained' className={classes.button} disabled>Loading...</Button> :
-              error.password.status || error.username.status ?
-                <Button type='submit' variant='contained' className={classes.button} disabled>Login</Button> :
-                <Button type='submit' variant='contained' className={classes.button}>Login</Button>
-            }
+            {loading ? (
+              <Button type='submit' variant='contained' className={classes.button} disabled>
+                Loading...
+              </Button>
+            ) : error.password.status || error.username.status ? (
+              <Button type='submit' variant='contained' className={classes.button} disabled>
+                Login
+              </Button>
+            ) : (
+              <Button type='submit' variant='contained' className={classes.button}>
+                Login
+              </Button>
+            )}
           </Box>
           <Typography variant='body2' color='textSecondary' align='right' style={{ marginTop: '1rem' }}>
             <MaterialLink href='/account/forgot-password'>Forgot Password?</MaterialLink>

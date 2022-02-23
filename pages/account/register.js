@@ -96,12 +96,12 @@ export default function Register() {
         passwordValidation(e.target.value)
           ? setError({ ...error, password: { status: false, message: '' } })
           : setError({
-            ...error,
-            password: {
-              status: true,
-              message: 'password must be at least 6 char',
-            },
-          });
+              ...error,
+              password: {
+                status: true,
+                message: 'password must be at least 6 char',
+              },
+            });
     }
   };
 

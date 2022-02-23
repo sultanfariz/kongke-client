@@ -2,17 +2,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { makeStyles } from '@mui/styles';
 import styles from '../../styles/Home.module.css';
-// import Loading from '../../src/components/Page/Loading';
-// import NotFoundPage from '../../src/components/Page/NotFound';
-// import ErrorPage from '../../src/components/Page/Error';
 import { RoomCard } from '../../src/components/card/RoomCard';
 import { BottomNav } from '../../src/components/navigation/BottomNav';
-import dummyPP from '../../public/profile-dummy.png';
+import { jwtDecode } from '../../src/utils/jwt';
+import Forbidden from '../../src/components/pages/Forbidden';
 // import NavTabs from '../../src/components/Button/SearchFilterTab';
-// import {
-//   GET_REVIEWS_BY_TITLE_OR_AUTHOR,
-//   GET_REVIEWS_BY_TITLE_OR_AUTHOR_ORDER_BY_NEWEST,
-// } from '../../src/libs/GraphQL/query';
 
 const rooms = [
   {
@@ -43,12 +37,19 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Search() {
   const classes = useStyles();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   // const router = useRouter();
   // const keyword = router.query.keyword;
   // const order = router.query.order;
   // const [orderBy, setOrderBy] = useState(order);
   // const [searchData, setSearchData] = useState([]);
   // const [tab, setTab] = useState(0);
+
+  useEffect(() => {
+    const { id } = jwtDecode();
+    if (!id) setIsAuthenticated(false);
+    else setIsAuthenticated(true);
+  }, []);
 
   // useEffect(() => {
   //   if (order === 'newest') {
@@ -85,12 +86,12 @@ export default function Search() {
 
   return (
     // <main className={styles.main}>
-    <main className={classes.root}>
+    !isAuthenticated ? (<Forbidden />) : (<main className={classes.root}>
       {/* <NavTabs keyword={keyword} tab={tab} /> */}
       {rooms?.map((room) => {
         return <RoomCard room={room} key={room.id} />;
       })}
       <BottomNav label='Home' />
-    </main>
+    </main>)
   );
 }

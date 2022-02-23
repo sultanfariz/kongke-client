@@ -9,6 +9,7 @@ import styles from '../../styles/Home.module.css';
 import { BottomNav } from '../../src/components/navigation/BottomNav';
 import { passwordValidation } from '../../src/utils/validation';
 import { login } from '../../src/utils/fetchApi/auth';
+import { jwtDecode } from '../../src/utils/jwt';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Login() {
   const router = useRouter();
   const classes = useStyles();
-
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
@@ -59,6 +60,16 @@ export default function Login() {
     status: false,
     message: '',
   });
+
+  useEffect(() => {
+    const { id } = jwtDecode();
+    if (!id) setIsAuthenticated(false);
+    else setIsAuthenticated(true);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) router.push('/');
+  }, [isAuthenticated]);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
